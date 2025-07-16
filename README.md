@@ -2,7 +2,7 @@
 
 This project provides a reusable Python function to perform the **Kruskal-Wallis H-test** across **multiple continuous variables**, grouped by a categorical feature. It returns a **clean summary DataFrame** with test statistics, p-values, and significance indicators, making it easy to evaluate whether medians differ significantly between groups for each variable.
 
-## Purpose
+## 1. Purpose
 
 The Kruskal-Wallis test is a **non-parametric alternative to one-way ANOVA**. It is used when:
 - You have **3 or more independent groups**
@@ -11,7 +11,7 @@ The Kruskal-Wallis test is a **non-parametric alternative to one-way ANOVA**. It
 
 This script simplifies applying this test across **many variables at once**, saving time and boosting productivity in exploratory and inferential analysis.
 
-## Features
+## 2. Features
 
 - Accepts a pandas DataFrame and a grouping column
 - Automatically applies the Kruskal-Wallis test to all other numeric variables
@@ -22,7 +22,7 @@ This script simplifies applying this test across **many variables at once**, sav
   - Significance status (`p < 0.05`)
 - Ready for integration in statistical reports or dashboards
 
-##  How to Use
+##  3. How to Use
 
 ```python
 from scipy.stats import kruskal
@@ -53,7 +53,7 @@ def kruskall_wallis(df, group_columns: str, numerical_columns: list = None):
 
 ```
 
-## 📂 Example Dataset
+## 4. 📂 Example Dataset
 ```
 df = pd.DataFrame({
     'Group 1': ['Ashura', 'Ashura', 'Ashura', 'Barack', 'Barack', 'Barack', 'Colins', 'Colins', 'Colins'],
@@ -74,7 +74,7 @@ print(results)
 ```
 
 
-##  Sample Output
+##  5. Sample Output
 
 Variable	Kruskal-Wallis Statistic	p-value	Significant (p<0.05)
 
@@ -99,14 +99,14 @@ Variable	Kruskal-Wallis Statistic	p-value	Significant (p<0.05)
 | 16 | Group 3 | Variable 5  |                      7.261 |     0.027 | ✔                      |
 | 17 | Group 3 | Variable 6  |                      5.6   |     0.061 | ✖                      |
 
-📈 Applications
+# 6. 📈 Applications
 
 - Agricultural and biological experiments
 - Social science and behavioral research
 - Market and product group analysis
 - Education and clinical trial comparisons
 
-📥 Requirements
+## 7. 📥 Requirements
 
 - Python 3.x
 - pandas
@@ -117,7 +117,7 @@ pip install pandas scipy
 ```
 
 
-## 🤝 Contributing
+## 8. 🤝 Contributing
 
 Feel free to fork this repo, contribute improvements, or suggest additional features such as post-hoc Dunn tests, visualization tools, or effect size calculation.
 
@@ -129,7 +129,7 @@ Feel free to fork this repo, contribute improvements, or suggest additional feat
 - Fork and adapt for your project
 - Mention the project in your work!
 
-## License
+## 9. License
 
 MIT License
 
