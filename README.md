@@ -2,7 +2,7 @@
 
 This project provides a reusable Python function to perform the **Kruskal-Wallis H-test** across **multiple continuous variables**, grouped by a categorical feature. It returns a **clean summary DataFrame** with test statistics, p-values, and significance indicators, making it easy to evaluate whether medians differ significantly between groups for each variable.
 
-## 📌 Purpose
+## Purpose
 
 The Kruskal-Wallis test is a **non-parametric alternative to one-way ANOVA**. It is used when:
 - You have **3 or more independent groups**
@@ -27,48 +27,77 @@ This script simplifies applying this test across **many variables at once**, sav
 ```python
 from scipy.stats import kruskal
 import pandas as pd
+import numpy as np
 
-# Define function
-def kruskal_test_all_variables(df, group_col):
+def kruskall_wallis(df, group_columns: str, numerical_columns: list = None):
+    if numerical_columns is None:
+        numerical_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+        for g in group_columns:
+            if g in numerical_columns:
+                numerical_columns.remove(g)
     results = []
-    variables = df.columns.drop(group_col)
-    
-    for var in variables:
-        groups = [group[var].dropna().values for name, group in df.groupby(group_col)]
-        stat, p = kruskal(*groups)
-        results.append({
-            'Variable': var,
-            'Kruskal-Wallis Statistic': stat,
-            'p-value': p,
-            'Significant (p<0.05)': p < 0.05
-        })
-    
+    for group_column in group_columns:
+        for column in numerical_columns:
+            # Create a list of samples grouped by group_column
+            groups = [group[column].dropna().values for name, group in df.groupby(group_column)]
+            stats, p_value = kruskal(*groups)
+            interpretation = '✔' if p_value < 0.05 else '✖'
+            results.append({
+                'Group': group_column,
+                'Variables': column,
+                'Kruskal-Wallis Statistic': stats,
+                'P-value': p_value,
+                'Significant (α<0.05)': interpretation
+            })
     return pd.DataFrame(results)
 
 ```
 
-📂 Example Dataset
+## 📂 Example Dataset
 ```
 df = pd.DataFrame({
-    'Group': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C', 'C'],
-    'Var1': [12, 14, 13, 15, 16, 14, 10, 9, 11],
-    'Var2': [7, 6, 7, 8, 9, 10, 5, 6, 5],
-    'Var3': [20, 21, 19, 23, 22, 21, 18, 17, 19]
+    'Group 1': ['Ashura', 'Ashura', 'Ashura', 'Barack', 'Barack', 'Barack', 'Colins', 'Colins', 'Colins'],
+    'Group 2': ['Orenge', 'Orenge', 'Orenge', 'Banana', 'Banana', 'Banana', 'Carott', 'Carott', 'Carott'],
+    'Group 3': ['Alpha', 'Alpha', 'Alpha', 'Bravo', 'Bravo', 'Bravo', 'Eagle', 'Eagle', 'Eagle'],
+    'Variable 1': [12, 14, 13, 15, 16, 14, 10, 9, 11],
+    'Variable 2': [7, 6, 7, 8, 9, 10, 5, 6, 5],
+    'Variable 3': [20, 21, 19, 23, 22, 21, 18, 17, 19],
+    'Variable 4': [124, 145, 137, 150, 163, 148, 180, 90, 111],
+    'Variable 5': [70, 66, 75, 80, 92, 100, 56, 64, 56],
+    'Variable 6': [2, 2, 1, 2, 2, 2, 1, 1, 1]
 })
 
+
+groups_column = ['Group 1', 'Group 2', 'Group 3']
 results = kruskal_test_all_variables(df, 'Group')
 print(results)
 ```
 
 
-📊 Sample Output
+##  Sample Output
 
 Variable	Kruskal-Wallis Statistic	p-value	Significant (p<0.05)
 
-Var1	5.143	0.076	False
-Var2	6.000	0.050	True
-Var3	7.200	0.027	True
-
+|    | Group   | Variables   |   Kruskal-Wallis Statistic |   P-value | Significant (α<0.05)   |
+|---:|:--------|:------------|---------------------------:|----------:|:-----------------------|
+|  0 | Group 1 | Variable 1  |                      6.88  |     0.032 | ✔                      |
+|  1 | Group 1 | Variable 2  |                      6.997 |     0.03  | ✔                      |
+|  2 | Group 1 | Variable 3  |                      6.531 |     0.038 | ✔                      |
+|  3 | Group 1 | Variable 4  |                      2.4   |     0.301 | ✖                      |
+|  4 | Group 1 | Variable 5  |                      7.261 |     0.027 | ✔                      |
+|  5 | Group 1 | Variable 6  |                      5.6   |     0.061 | ✖                      |
+|  6 | Group 2 | Variable 1  |                      6.88  |     0.032 | ✔                      |
+|  7 | Group 2 | Variable 2  |                      6.997 |     0.03  | ✔                      |
+|  8 | Group 2 | Variable 3  |                      6.531 |     0.038 | ✔                      |
+|  9 | Group 2 | Variable 4  |                      2.4   |     0.301 | ✖                      |
+| 10 | Group 2 | Variable 5  |                      7.261 |     0.027 | ✔                      |
+| 11 | Group 2 | Variable 6  |                      5.6   |     0.061 | ✖                      |
+| 12 | Group 3 | Variable 1  |                      6.88  |     0.032 | ✔                      |
+| 13 | Group 3 | Variable 2  |                      6.997 |     0.03  | ✔                      |
+| 14 | Group 3 | Variable 3  |                      6.531 |     0.038 | ✔                      |
+| 15 | Group 3 | Variable 4  |                      2.4   |     0.301 | ✖                      |
+| 16 | Group 3 | Variable 5  |                      7.261 |     0.027 | ✔                      |
+| 17 | Group 3 | Variable 6  |                      5.6   |     0.061 | ✖                      |
 
 📈 Applications
 
@@ -88,7 +117,7 @@ pip install pandas scipy
 ```
 
 
-🤝 Contributing
+## 🤝 Contributing
 
 Feel free to fork this repo, contribute improvements, or suggest additional features such as post-hoc Dunn tests, visualization tools, or effect size calculation.
 
